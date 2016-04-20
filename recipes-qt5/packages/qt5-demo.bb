@@ -27,3 +27,5 @@ do_install() {
 NATIVE_SYSTEMD_SUPPORT = "1"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "${PN}.service"
+
+RDEPENDS_${PN} = "cinematicexperience"

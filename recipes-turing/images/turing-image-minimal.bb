@@ -1,5 +1,4 @@
-DESCRIPTION = "Minimalistic image for Turing Computer System on Modules. \
-Also includes many other packages for testing and manufacturing boards based on Turing Computer System on Modules"
+DESCRIPTION = "Minimalistic image for evaluating Turing Computer System on Modules."
 
 LICENSE = "MIT"
 

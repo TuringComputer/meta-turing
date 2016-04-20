@@ -8,7 +8,14 @@ print_usage()
 	return
 }
 
-FW_DIR="/fw"
+function error_exit
+{
+	echo "$1" 1>&2
+	exit 1
+	return
+}
+
+FW_DIR="/media/fw"
 
 #######################################
 # Parse command-line arguments
@@ -28,44 +35,40 @@ do
         esac
 done
 
+echo "Mounting firmware partition..."
+mkdir -p ${FW_DIR} || error_exit "Error creating ${FW_DIR} mounting point"
+mount /dev/mmcblk0p3 ${FW_DIR} || error_exit "Error mounting mmcblk0p3 at ${FW_DIR}"
 
 # Starting
 echo "Installing firmware on e-MMC..."
 
-# Enables boot partitions
-echo 8 > /sys/devices/soc0/soc.0/2100000.aips-bus/219c000.usdhc/mmc_host/mmc3/mmc3:0001/boot_config || exit 1
+echo "Enabling boot partitions..."
+echo 8 > /sys/devices/soc0/soc.0/2100000.aips-bus/219c000.usdhc/mmc_host/mmc3/mmc3:0001/boot_config || error_exit "Error while enabling boot at e-MMC"
 
-# Enable writes to /dev/mmcblk3boot0
+echo "Enabling write operations on mmcblk3boot0..."
+echo 0 > /sys/block/mmcblk3boot0/force_ro || error_exit "Error while enabling write operations mmcblk3boot0"
 
-echo 0 > /sys/block/mmcblk3boot0/force_ro || exit 1
-
-# Precaution: Erase entire eMMC boot region.
-
+echo "Erasing entire mmcblk3boot0 region..."
 dd if=/dev/zero of=/dev/mmcblk3boot0
 sync
 
-# Copy SPL to eMMC 1st boot region.
-
-dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot0 bs=1k seek=1 || exit 1
+echo "Coping SPL to e-MMC 1st boot region..."
+dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot0 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot0"
 sync
 
-# Enable writes to /dev/mmcblk3boot1
+echo "Enabling write operations on mmcblk3boot1..."
+echo 0 > /sys/block/mmcblk3boot1/force_ro || error_exit "Error while enabling write operations mmcblk3boot1"
 
-echo 0 > /sys/block/mmcblk3boot1/force_ro || exit 1
-
-# Precaution: Erase entire eMMC boot region.
-
+echo "Erasing entire mmcblk3boot1 region..."
 dd if=/dev/zero of=/dev/mmcblk3boot1
 sync
 
-# Copy SPL to eMMC 2nd boot region.
-
-dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot1 bs=1k seek=1 || exit 1
+echo "Coping SPL to e-MMC 2nd boot region..."
+dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot1 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot1"
 sync
 
-# Install the whole Yocto image to eMMC.
-
-dd if=${FW_DIR}/turing-image-qt5-imx6x-turing.sdcard of=/dev/mmcblk3 bs=1k || exit 1
+echo "Installing the whole firmware image to e-MMC..."
+dd if=${FW_DIR}/image.sdcard of=/dev/mmcblk3 bs=1k || error_exit "Error while copying the firmware image to mmcblk3"
 sync
 
 # Done
