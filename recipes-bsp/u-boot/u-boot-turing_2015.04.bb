@@ -11,7 +11,7 @@ PV = "2015.04"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
 
-SRCREV = "451ccbac378f2a9ba09450b407eb273564cac0e3"
+SRCREV = "9f9c6e5df97ee02d3dd8d69c2e71753258658efa"
 SRCBRANCH = "imx-2015.04"
 
 SRC_URI = "git://github.com/TuringComputer/uboot.git;protocol=https;branch=${SRCBRANCH}"
@@ -19,4 +19,4 @@ SRC_URI = "git://github.com/TuringComputer/uboot.git;protocol=https;branch=${SRC
 S = "${WORKDIR}/git"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-COMPATIBLE_MACHINE = "(imx6x-turing|imx53-turing)"
+COMPATIBLE_MACHINE = "(imx6x-turing|imx6x-turing-smart|imx53-turing)"

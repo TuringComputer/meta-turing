@@ -10,10 +10,10 @@ DESCRIPTION = "Linux kernel for Turing Machines, with full support for the i.MX6
 
 DEPENDS += "lzop-native bc-native"
 
-SRCREV = "a32307cefeb1589e438e3bd001cec0addd73d0bb"
+SRCREV = "933bc2c1e0207ce60d2ae08eeac2a26b2e38662b"
 SRCBRANCH = "imx6x-3.14.52"
 
 SRC_URI = "git://github.com/TuringComputer/linux.git;protocol=https;branch=${SRCBRANCH} \
            file://defconfig"
 
-COMPATIBLE_MACHINE = "(imx6x-turing)"
+COMPATIBLE_MACHINE = "(imx6x-turing|imx6x-turing-smart)"
