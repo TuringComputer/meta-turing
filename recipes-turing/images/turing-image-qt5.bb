@@ -7,35 +7,15 @@ LICENSE = "MIT"
 
 inherit core-image
 
-IMAGE_INSTALL_append = "gcc g++ binutils libgcc libgcc-dev libstdc++ libstdc++-dev libstdc++-staticdev \
-  autoconf automake ccache chkconfig glib-networking glibmm \
-  packagegroup-core-buildessential pkgconfig  \
-  boost cmake zlib glib-2.0 packagegroup-fsl-tools-testapps \
+IMAGE_INSTALL_append = "\
+  packagegroup-core-buildessential \
+  packagegroup-fsl-tools-testapps \
+  packagegroup-turing-test-tools \
+  packagegroup-turing-build-tools \
+  packagegroup-turing-qt5-tools \
   \
-  gdbserver \
-  qtbase \
-  qtbase-fonts \
-  qtbase-plugins \
-  qtdeclarative \
-  qtmultimedia \
-  qtsvg \
-  qtsensors \
-  qtsystems \
-  qt3d \
-  qtwebkit \
-  qtconnectivity \
-  cinematicexperience \
-  openssh-sftp-server \
-  dbus \
-  gdb \
-  imx-vpu \
-  imx-test \
-  packagegroup-fsl-gstreamer1.0-full \
-  tslib-conf tslib-tests tslib-calibrate tslib \
-  nano iperf minicom i2c-tools strace libtool git wget \
-  wvdial canutils evtest \
   atmel-wireless-firmware \
-  turing-production-tools \
+  cinematicexperience \
   qt5-demo \
   "
   
