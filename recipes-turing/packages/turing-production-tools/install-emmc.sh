@@ -52,7 +52,7 @@ echo "Erasing entire mmcblk3boot0 region..."
 dd if=/dev/zero of=/dev/mmcblk3boot0
 sync
 
-echo "Coping SPL to e-MMC 1st boot region..."
+echo "Copying SPL to e-MMC 1st boot region..."
 dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot0 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot0"
 sync
 
@@ -63,7 +63,7 @@ echo "Erasing entire mmcblk3boot1 region..."
 dd if=/dev/zero of=/dev/mmcblk3boot1
 sync
 
-echo "Coping SPL to e-MMC 2nd boot region..."
+echo "Copying SPL to e-MMC 2nd boot region..."
 dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot1 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot1"
 sync
 
