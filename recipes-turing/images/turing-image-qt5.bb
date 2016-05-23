@@ -12,9 +12,12 @@ IMAGE_INSTALL_append = "\
   packagegroup-fsl-tools-testapps \
   packagegroup-turing-test-tools \
   packagegroup-turing-build-tools \
+  packagegroup-turing-network-tools \
   packagegroup-turing-qt5-tools \
   \
   atmel-wireless-firmware \
+  linux-firmware \
+  \
   cinematicexperience \
   qt5-demo \
   "
