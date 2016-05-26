@@ -11,4 +11,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     dhcp-client \
     dhcp-server \
     hostapd \
+    wget \
     "

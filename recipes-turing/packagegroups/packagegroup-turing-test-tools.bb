@@ -18,7 +18,6 @@ RDEPENDS_packagegroup-turing-test-tools = "\
     i2c-tools \
     strace \
     libtool \ 
-    wget \
     pciutils \
     stress \
     memtester \
@@ -32,5 +31,6 @@ RDEPENDS_packagegroup-turing-test-tools = "\
   	imx-test \
   	util-linux \
   	coreutils \
+  	cpufrequtils \
     turing-production-tools \
     "
