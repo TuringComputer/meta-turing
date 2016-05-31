@@ -15,6 +15,9 @@ IMAGE_INSTALL_append = "\
   packagegroup-turing-network-tools \
   packagegroup-turing-qt5-tools \
   \
+  packagegroup-fsl-gstreamer1.0-full \
+  gstreamer1.0-plugins-imx \
+  \
   atmel-wireless-firmware \
   linux-firmware \
   \
