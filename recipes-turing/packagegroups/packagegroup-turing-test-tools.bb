@@ -27,7 +27,7 @@ RDEPENDS_packagegroup-turing-test-tools = "\
     ethtool \
     mtd-utils \
     mtd-utils-ubifs \
-    imx-vpu \
+    ${@base_contains("SOC_FAMILY", "mx6ul", "", "imx-vpu", d)} \
   	imx-test \
   	util-linux \
   	coreutils \
