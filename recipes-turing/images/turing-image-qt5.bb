@@ -1,7 +1,7 @@
-DESCRIPTION = "Image with QT5 libraries and demo for development work. \
+DESCRIPTION = "Image with QT5 libraries and demo for development. \
 Also includes many other packages for testing and manufacturing boards based on Turing Computer System on Modules"
 
-IMAGE_FEATURES += "splash package-management ssh-server-openssh ssh-server-dropbear hwcodecs dev-pkgs"
+IMAGE_FEATURES += "splash ssh-server-openssh hwcodecs dev-pkgs nfs-server"
 
 LICENSE = "MIT"
 
@@ -9,23 +9,18 @@ inherit core-image
 
 IMAGE_INSTALL_append = "\
   packagegroup-core-buildessential \
-  packagegroup-fsl-tools-testapps \
-  packagegroup-turing-test-tools \
-  packagegroup-turing-build-tools \
+  \
+  packagegroup-turing-essentials \
   packagegroup-turing-network-tools \
+  \
+  packagegroup-turing-linux-firmware \
+  \
+  packagegroup-turing-multimedia-tools \
+  \
+  packagegroup-turing-build-tools \
   packagegroup-turing-qt5-tools \
-  \
-  packagegroup-fsl-gstreamer1.0-full \
-  gstreamer1.0-plugins-imx \
-  \
-  atmel-wireless-firmware \
-  linux-firmware \
   \
   cinematicexperience \
   qt5-demo \
   "
-  
-IMAGE_DEV_MANAGER   = "udev"
-IMAGE_INIT_MANAGER  = "systemd"
-IMAGE_INITSCRIPTS   = " "
-IMAGE_LOGIN_MANAGER = "busybox shadow"
+

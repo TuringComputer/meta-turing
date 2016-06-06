@@ -3,10 +3,11 @@ SECTION = "kernel"
 
 LICENSE = "CLOSED"
 
-SRCREV = "${AUTOREV}"
 PV = "v14"
+SRCREV = "972649eb26024be096d3f33cd2dd54d8309156de"
+SRCBRANCH = "master"
 
-SRC_URI = "git://github.com/linux4sc/wireless-firmware.git;protocol=git;branch=v14 \
+SRC_URI = "git://github.com/atwilc3000/firmware.git;protocol=git;branch=${SRCBRANCH} \
           "
 S = "${WORKDIR}/git"
 
@@ -28,6 +29,6 @@ do_install() {
 
 
 FILES_${PN} = " \
-  /lib/firmware/atmel/wilc100*_*.bin \
+  /lib/firmware/atmel/*.bin \
 "
 # TODO: use ALTERNATIVE like in "linux-firmware" package

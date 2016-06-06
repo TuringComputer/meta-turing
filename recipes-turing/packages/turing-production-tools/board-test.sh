@@ -4,7 +4,7 @@ print_usage()
 {
 	echo "USAGE: ${0} [test]"
 	echo "Available tests are:"
-	echo "all              Run all tests below (default)."
+	echo "all              Run all tests below."
 	echo "cpu              Run CPU stress tests."
 	echo "ddr3             Run DDR3 stress and integrity tests."
 	echo "full_ddr3        Run DDR3 stress and integrity tests on all free memory."
@@ -19,11 +19,19 @@ print_usage()
 	echo "i2s_out          Playback on headphone. Asks for the user approval."
 	echo "spdif            Playback on S/PDIF interface. Asks for the user approval."
 	echo "i2s_in           Capture audio from I2S interface (microphone), play it back on the headphone. Asks for the user approval."
+	echo "audio_all        Playback on headphone, capture it back on microphone and play it back on S/PDIF."
 	echo "csi              Capture images from the CSI interface and displays them on the screen. Asks for the user approval."
 	echo "mipi             Capture images from the MIPI interface and displays them on the screen. Asks for the user approval."
-	echo "can              Tests the CAN interfaces (loopback)."
+	echo "can0             Tests the can0 interface."
+	echo "can1             Tests the can1 interface."
 	echo "i2c              Checks for known devices on the I2C interfaces."
+	echo "wlan0            Checks if Wifi (wlan0) is working."
+	echo "wlp1s0           Checks if Wifi (wlp1s0) is working."
 	echo "sleep            Checks if the board can sleep and wakeup properly."
+	echo "kit-cpu          Runs all tests related to Turing's System on Module."
+	echo "kit-mb           Runs all tests related to Turing's Motherboard."
+	echo "kit-cn           Runs all tests related to Turing's Connectivity Expansion Board."
+	echo "kit-dis          Runs all tests related to Turing's Display Expansion Board."
 	echo "EXAMPLE:"
 	echo "${0} all "
 	return
@@ -85,7 +93,7 @@ function test_sata
 	if [ -e "/sys/devices/soc0/soc.0/2200000.sata/" ]
 	then
 		echo "Testing SATA..."
-	  	if [ -e "/dev/sda1" ]
+	  	if [ -e "/dev/sda" ]
 	  	then
 	  		echo "Done."
 	  	else
@@ -159,37 +167,51 @@ function test_ts
 function test_lcd
 {
 	echo "Testing RGB display..."
-	echo 0 > /sys/class/graphics/fb0/blank
-	# For some reason, we need to run this test twice, so it works
-	/unit_tests/autorun-fb.sh > /dev/null
-	/unit_tests/autorun-fb.sh
-	ask_user "Could you see color changes on the LCD correctly? (y/N): " "LCD"
+	echo 16 > /sys/class/graphics/fb2/bits_per_pixel
+	sleep 1
+	echo 0 > /sys/class/graphics/fb2/blank
+	sleep 2
+	cat /unit_tests/pansy-1280x720-565.rgb > /dev/fb2
+	ask_user "Could you see color changes on the RGB display correctly? (y/N): " "LCD"
 }
 
 function test_lvds
 {
 	echo "Testing LVDS display..."
-	echo "Done."
+	echo 16 > /sys/class/graphics/fb0/bits_per_pixel
+	sleep 1
+	echo 0 > /sys/class/graphics/fb0/blank
+	sleep 2
+	cat /unit_tests/rose-800x600-565.rgb > /dev/fb0
+	ask_user "Could you see color changes on the LVDS display correctly? (y/N): " "LCD"
 }
 
 function test_i2s_out
 {
 	echo "Testing I2S Out..."
-	aplay /unit_tests/audio8k16S.wav -d=imx-sgtl5000 || error_exit "I2S Out Test Failed."
+	aplay /unit_tests/audio8k16S.wav -d=imx-sgtl5000 --duration=10 || error_exit "I2S Out Test Failed."
 	ask_user "Could you listen to audio on your headphone interface? (y/N): " "I2S Out"
 }
 
 function test_i2s_in
 {
 	echo "Testing I2S In..."
-	arecord -d=imx-sgtl5000 -f cd -t raw --duration 10 | aplay -d=imx-sgtl5000 || error_exit "I2S In Test Failed."
+	arecord -d=imx-sgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -d=imx-sgtl5000 || error_exit "I2S In Test Failed."
 	ask_user "Could you listen to microphone on your headphone interface? (y/N): " "I2S In"
 }
 
 function test_spdif
 {
 	echo "Testing S/PDIF output interface..."
-	aplay /unit_tests/audio8k16S.wav -d=imx-spdif || error_exit "S/PDIF Out Test Failed."
+	aplay /unit_tests/audio8k16S.wav -d=imx-spdif --duration=10 || error_exit "S/PDIF Out Test Failed."
+	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "S/PDIF Out"
+}
+
+function test_audio_all
+{
+	echo "Testing Audio..."
+	aplay /unit_tests/audio8k16S.wav -d=imx-sgtl5000 --duration=10 &
+	arecord -d=imx-sgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -d=imx-spdif || error_exit "Audio Test Failed."
 	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "S/PDIF Out"
 }
 
@@ -207,8 +229,31 @@ function test_mipi
 
 function test_can
 {
-	echo "Testing CAN interfaces..."
+	CAN_INTERFACE=$1
+	echo "Testing $CAN_INTERFACE interfaces..."
+	ifconfig $CAN_INTERFACE down || error_exit "Failed to close $CAN_INTERFACE interface."
+	
+	ip link set $CAN_INTERFACE type can bitrate 250000 || error_exit "Failed to configure $CAN_INTERFACE interface."
+	ifconfig $CAN_INTERFACE up || error_exit "Failed to open $CAN_INTERFACE interface."
+	
+	if [ $(timeout -s KILL 5s candump $CAN_INTERFACE | wc -l) -lt 1 ]
+	then
+		error_exit "$CAN_INTERFACE Test Failed."
+	fi
+	
+	ifconfig $CAN_INTERFACE down || error_exit "Failed to close $CAN_INTERFACE interface."
+
 	echo "Done."
+}
+
+function test_can0
+{
+	test_can can0
+}
+
+function test_can1
+{
+	test_can can1
 }
 
 function test_i2c
@@ -229,6 +274,58 @@ function test_sleep
 	echo "The system will sleep for $SLEEP_TIME seconds. You can check for current drop to below 180mA..."
 	rtcwake -m mem -s $SLEEP_TIME || error_exit "Sleep Test failed."
 	echo "Done."
+}
+
+function test_gps
+{
+	echo "Testing GPS..."
+	if [ $(lsusb | grep -i "U-Blox AG" | wc -l) -eq 0 ]
+	then
+		error_exit "GPS not detected."
+	fi
+	if [ $(timeout 10s cat /dev/ttyACM0 | grep -Ei "gga|rmc" | wc -l) -ge 1 ]
+	then
+		echo "Done."
+	else
+		error_exit "GPS is not working."
+	fi
+}
+
+function test_modem
+{
+	echo "Testing 3G Modem..."
+	
+	echo "Done."
+}
+
+function test_wifi
+{
+	WLAN_INTERFACE=$1
+	echo "Testing Wifi $WLAN_INTERFACE..."
+	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
+	then
+		ip link set $WLAN_INTERFACE up || error_exit "Failed to start wlan interface."
+		if [ $(iw dev $WLAN_INTERFACE scan | grep -i "SSID" | wc -l) -ge 1 ]
+		then
+			echo "Done."
+		else
+			error_exit "Could not find any wireless network."
+		fi
+	else
+		error_exit "$WLAN_INTERFACE interface not found."
+	fi
+	ifconfig $WLAN_INTERFACE down
+}
+
+function test_9axis
+{
+	echo "Testing 9-Axis..."
+	if [ $(cat /sys/bus/i2c/devices/0-001e/name) == "lsm9ds1-mag" ] && [ $(cat /sys/bus/i2c/devices/0-006b/name) == "lsm9ds1-acc-gyr" ]
+	then
+		echo "Done"
+	else
+		error_exit "9-Axis not detected" 
+	fi
 }
 
 #######################################
@@ -286,21 +383,72 @@ do
         i2s_out)
        			test_i2s_out
        			;;
+       	audio_all)
+       			test_audio_all
+       			;;
        	csi)
        			test_csi
        			;;
        	mipi)
        			test_mipi
        			;;
-        can)	
-        		test_can
+        can0)	
+        		test_can0
+        		;;
+        can1)	
+        		test_can1
         		;;
         i2c)
         		test_i2c
         		;;
+        wlan0)
+        		test_wifi wlan0
+        		;;
+        wls1p0)
+        		test_wifi wls1p0
+        		;;
        	sleep)
        			test_sleep
        			;;
+       	kit-mb)
+       			test_sata
+       			test_spi
+       			test_usbh
+       			test_pcie
+       			test_audio_all
+       			test_lcd
+       			;;
+       	kit-cn)		
+       			test_gps
+       			test_modem
+       			test_wifi wlan0
+       			test_9axis
+       			test_can0
+       			test_can1
+       			;;
+       	kit-dis)
+       			test_ts
+        		test_lvds
+       			;;
+        kit-cpu)
+        		test_cpu
+        		test_ddr3
+        		test_sata
+        		test_spi
+        		test_usbh
+        		test_mmc
+        		test_i2c
+        		test_can0
+        		test_can1
+        		test_pcie
+        		test_ts
+        		test_lcd
+        		test_lvds
+        		test_audio_all
+        		#test_csi
+        		#test_mipi
+        		test_sleep
+        		;;
         all)
         		test_cpu
         		test_ddr3
@@ -309,14 +457,18 @@ do
         		test_usbh
         		test_mmc
         		test_i2c
-        		#test_can
-        		#test_pcie
-        		#test_ts
-        		#test_lcd
-        		#test_lvds
-        		#test_spdif
-        		#test_i2s_in
-        		#test_i2s_out
+        		test_can0
+        		test_can1
+        		test_pcie
+        		test_ts
+        		test_lcd
+        		test_lvds
+        		test_audio_all
+        		test_gps
+       			test_modem
+       			test_wifi wlan0
+       			test_wifi wlp1s0
+       			test_9axis
         		#test_csi
         		#test_mipi
         		test_sleep

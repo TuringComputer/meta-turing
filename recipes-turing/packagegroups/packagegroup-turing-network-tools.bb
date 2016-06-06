@@ -12,4 +12,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     dhcp-server \
     hostapd \
     wget \
+    wvdial \
     "

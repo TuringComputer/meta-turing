@@ -21,6 +21,5 @@ RDEPENDS_packagegroup-turing-build-tools = "\
   	glib-2.0 \
   	gdbserver \
   	openssh-sftp-server \
-	dbus \
 	gdb \
     "
