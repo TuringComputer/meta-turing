@@ -13,4 +13,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     hostapd \
     wget \
     wvdial \
+    iptables \
     "

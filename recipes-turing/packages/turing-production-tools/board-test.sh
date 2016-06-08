@@ -25,8 +25,9 @@ print_usage()
 	echo "can0             Tests the can0 interface."
 	echo "can1             Tests the can1 interface."
 	echo "i2c              Checks for known devices on the I2C interfaces."
-	echo "wlan0            Checks if Wifi (wlan0) is working."
-	echo "wlp1s0           Checks if Wifi (wlp1s0) is working."
+	echo "wlan0            Checks if Wifi (WILC3000) is working."
+	echo "wlp1s0           Checks if Wifi (Intel Wireless) is working."
+	echo "bluetooth        Checks if Bluetooth (WILC3000) is working."
 	echo "sleep            Checks if the board can sleep and wakeup properly."
 	echo "kit-cpu          Runs all tests related to Turing's System on Module."
 	echo "kit-mb           Runs all tests related to Turing's Motherboard."
@@ -189,30 +190,30 @@ function test_lvds
 function test_i2s_out
 {
 	echo "Testing I2S Out..."
-	aplay /unit_tests/audio8k16S.wav -d=imx-sgtl5000 --duration=10 || error_exit "I2S Out Test Failed."
+	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxsgtl5000 --duration=10 || error_exit "I2S Out Test Failed."
 	ask_user "Could you listen to audio on your headphone interface? (y/N): " "I2S Out"
 }
 
 function test_i2s_in
 {
 	echo "Testing I2S In..."
-	arecord -d=imx-sgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -d=imx-sgtl5000 || error_exit "I2S In Test Failed."
+	arecord -D sysdefault:CARD=imxsgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -D sysdefault:CARD=imxsgtl5000 || error_exit "I2S In Test Failed."
 	ask_user "Could you listen to microphone on your headphone interface? (y/N): " "I2S In"
 }
 
 function test_spdif
 {
 	echo "Testing S/PDIF output interface..."
-	aplay /unit_tests/audio8k16S.wav -d=imx-spdif --duration=10 || error_exit "S/PDIF Out Test Failed."
+	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxspdif --duration=10 || error_exit "S/PDIF Out Test Failed."
 	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "S/PDIF Out"
 }
 
 function test_audio_all
 {
 	echo "Testing Audio..."
-	aplay /unit_tests/audio8k16S.wav -d=imx-sgtl5000 --duration=10 &
-	arecord -d=imx-sgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -d=imx-spdif || error_exit "Audio Test Failed."
-	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "S/PDIF Out"
+	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxsgtl5000 --duration=10 &
+	arecord -D sysdefault:CARD=imxsgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -D sysdefault:CARD=imxspdif || error_exit "Audio Test Failed."
+	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "Audio All"
 }
 
 function test_csi
@@ -317,6 +318,39 @@ function test_wifi
 	ifconfig $WLAN_INTERFACE down
 }
 
+function test_bluetooth
+{
+	BT_INTERFACE=$1
+	WLAN_INTERFACE=wlan0
+	echo "Testing Bluetooth $BT_INTERFACE..."
+	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
+	then
+		ifconfig $WLAN_INTERFACE up || error_exit "Failed to start wlan interface."
+		echo BT_POWER_UP > /dev/at_pwr_dev
+		echo BT_DOWNLOAD_FW > /dev/at_pwr_dev
+		if [ ! -e "/sys/class/bluetooth/$BT_INTERFACE" ]
+		then
+			hciattach -n -s 115200 /dev/ttymxc2 any 115200 noflow &
+			sleep 5
+		fi
+		hciconfig $BT_INTERFACE up
+		DEVICES=$(hcitool scan | wc -l)
+		
+		echo BT_POWER_DOWN > /dev/at_pwr_dev
+		hciconfig $BT_INTERFACE down
+		ifconfig $WLAN_INTERFACE down
+		
+		if [ $DEVICES -gt 1 ]
+		then
+			echo "Done."
+		else
+			error_exit "Could not find any bluetooth device."
+		fi
+	else
+		error_exit "$WLAN_INTERFACE interface not found."
+	fi
+}
+
 function test_9axis
 {
 	echo "Testing 9-Axis..."
@@ -407,6 +441,9 @@ do
         wls1p0)
         		test_wifi wls1p0
         		;;
+       	bluetooth)
+       			test_bluetooth hci0
+       			;;
        	sleep)
        			test_sleep
        			;;
@@ -422,6 +459,7 @@ do
        			test_gps
        			test_modem
        			test_wifi wlan0
+       			test_bluetooth hci0
        			test_9axis
        			test_can0
        			test_can1
@@ -468,6 +506,7 @@ do
        			test_modem
        			test_wifi wlan0
        			test_wifi wlp1s0
+       			test_bluetooth hci0
        			test_9axis
         		#test_csi
         		#test_mipi
