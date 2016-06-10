@@ -33,4 +33,5 @@ RDEPENDS_packagegroup-turing-essentials = "\
   	dbus \
   	alsa-utils \
     turing-production-tools \
+    unblank-f2 \
     "

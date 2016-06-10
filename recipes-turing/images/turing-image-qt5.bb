@@ -20,7 +20,7 @@ IMAGE_INSTALL_append = "\
   packagegroup-turing-build-tools \
   packagegroup-turing-qt5-tools \
   \
-  cinematicexperience \
-  qt5-demo \
+  packagegroup-turing-qt5-demos \
+  \
   "
 

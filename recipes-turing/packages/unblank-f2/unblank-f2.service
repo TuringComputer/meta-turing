@@ -1,0 +1,13 @@
+# See http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=systemd.service
+
+[Unit]
+Description=Qt5 Demo application
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/unblank-f2
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

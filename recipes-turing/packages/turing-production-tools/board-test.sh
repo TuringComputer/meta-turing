@@ -11,6 +11,7 @@ print_usage()
 	echo "sata             Checks if there is a SATA hard drive (/dev/sda) attached to the board."
 	echo "spi              Checks if there is a NOR Flash (/dev/mtd0) attached to SPI bus."
 	echo "usbh             Checks if there is any USB device attached to the board."
+	echo "modem            Checks if 3G Modem is working."
 	echo "mmc              Checks if the e-MMC flash memory (/dev/mmcblk3) is present."
 	echo "pcie             Checks if there is a PCI-e device attached to the board."
 	echo "ts               Tests the touchscreen device."
@@ -19,7 +20,7 @@ print_usage()
 	echo "i2s_out          Playback on headphone. Asks for the user approval."
 	echo "spdif            Playback on S/PDIF interface. Asks for the user approval."
 	echo "i2s_in           Capture audio from I2S interface (microphone), play it back on the headphone. Asks for the user approval."
-	echo "audio_all        Playback on headphone, capture it back on microphone and play it back on S/PDIF."
+	echo "audio_all        Playback on headphone, capture it back on microphone and play it on S/PDIF."
 	echo "csi              Capture images from the CSI interface and displays them on the screen. Asks for the user approval."
 	echo "mipi             Capture images from the MIPI interface and displays them on the screen. Asks for the user approval."
 	echo "can0             Tests the can0 interface."
@@ -38,9 +39,25 @@ print_usage()
 	return
 }
 
+function test_title
+{
+    echo ""
+    echo -e "\e[93m\e[1m\e[4m$1\e[0m"
+    echo ""
+}
+
+function test_success
+{
+    echo ""
+    echo -e "\e[92m\e[1m$1\e[0m"
+    echo ""
+}
+
 function error_exit
 {
-	echo -e "$1" 1>&2
+    echo ""
+    echo -e "\e[31m\e[1m\e[4m$1\e[0m" 1>&2
+    echo ""
 	exit 1
 	return
 }
@@ -51,7 +68,7 @@ function ask_user
 	echo
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
-	    echo "Done."
+	    test_success "Done."
 	else
 		error_exit "$2 Test failed."
 	fi
@@ -64,16 +81,17 @@ function test_full_ddr3
      MEMFREE=$(grep MemFree /proc/meminfo | awk '{print $2}')
      let MEMTOTAL=($MEMTOTAL / 1024)
      let MEMFREE=($MEMFREE / 1024)
-     echo "Testing Full DDR3 ($MEMFREE MB / $MEMTOTAL MB)..."
+     test_title "Testing Full DDR3 ($MEMFREE MB / $MEMTOTAL MB)"
      memtester $(MEMFREE)M 1 || error_exit "Memory Stress and Integrity Test failed."
+     test_success "Done."
 }
 
 function test_cpu
 {
 	CPUS=$(grep "processor" /proc/cpuinfo | wc -l)
-	echo "Testing $CPUS CPUs..."
+	test_title "Testing $CPUS CPUs..."
 	stress --cpu 1000 --timeout 15s || error_exit "CPU Stress Test failed."
-	echo "Done."
+	test_success "Done."
 }
 
 function test_ddr3
@@ -82,8 +100,9 @@ function test_ddr3
      MEMFREE=$(grep MemFree /proc/meminfo | awk '{print $2}')
      let MEMTOTAL=($MEMTOTAL / 1024)
      let MEMFREE=($MEMFREE / 1024)
-     echo "Testing DDR3 ($MEMFREE MB / $MEMTOTAL MB)..."
+     test_title "Testing DDR3 ($MEMFREE MB / $MEMTOTAL MB)"
      memtester 16M 1 || error_exit "Memory Stress and Integrity Test failed."
+     test_success "Done."
 }
 
 function test_sata
@@ -93,10 +112,10 @@ function test_sata
 	# because we are running Solo or Dual Lite versions
 	if [ -e "/sys/devices/soc0/soc.0/2200000.sata/" ]
 	then
-		echo "Testing SATA..."
+		test_title "Testing SATA"
 	  	if [ -e "/dev/sda" ]
 	  	then
-	  		echo "Done."
+	  		test_success "Done."
 	  	else
 	  		error_exit "SATA Test failed."
 	  	fi
@@ -105,10 +124,10 @@ function test_sata
 
 function test_spi
 {
-	echo "Testing SPI..."
+	test_title "Testing SPI"
 	if [ -e "/dev/mtd0" ]
 	then
-		echo "Done."
+		test_success "Done."
 	else
 	  	error_exit "SPI Test failed."
 	fi
@@ -116,10 +135,10 @@ function test_spi
 
 function test_usbh
 {
-	echo "Testing USB Host..."
+	test_title "Testing USB Host"
 	if [ $(lsusb | wc -l) -ge 3 ]
 	then
-		echo "Done."
+		test_success "Done."
 	else
 		error_exit "USB Host Test failed."
 	fi
@@ -127,10 +146,10 @@ function test_usbh
 
 function test_mmc
 {
-	echo "Testing e-MMC..."
+	test_title "Testing e-MMC"
 	if [ -e "/dev/mmcblk3" ]
 	then
-	  	echo "Done."
+	  	test_success "Done."
 	else
 	  	error_exit "e-MMC Test failed."
 	fi
@@ -138,10 +157,10 @@ function test_mmc
 
 function test_pcie
 {
-	echo "Testing PCI-e..."
+	test_title "Testing PCI-e"
 	if [ $(lspci | wc -l) -ge 1 ]
 	then
-		echo "Done."
+		test_success "Done."
 	else
 		error_exit "PCI-e Test failed."
 	fi
@@ -150,7 +169,7 @@ function test_pcie
 function test_ts
 {
 	let COUNT=0
-    echo "Testing Touchscreen..."
+    test_title "Testing Touchscreen"
     echo "Please, touch the display at any position..."
     while [ $(timeout 3s ts_print | wc -l) -lt 1 ] && [ $COUNT -lt 5 ]
     do
@@ -159,7 +178,7 @@ function test_ts
     done
     if [ $COUNT -lt 5 ]
     then
-    	echo "Done."
+    	test_success "Done."
     else
     	error_exit "Touchscreen Test failed."
     fi
@@ -167,50 +186,52 @@ function test_ts
 
 function test_lcd
 {
-	echo "Testing RGB display..."
+	test_title "Testing RGB display"
 	echo 16 > /sys/class/graphics/fb2/bits_per_pixel
 	sleep 1
 	echo 0 > /sys/class/graphics/fb2/blank
 	sleep 2
 	cat /unit_tests/pansy-1280x720-565.rgb > /dev/fb2
-	ask_user "Could you see color changes on the RGB display correctly? (y/N): " "LCD"
+	ask_user "Could you see color changes on the RGB display correctly? (y/N): " "RGB"
+	echo 16 > /sys/class/graphics/fb2/bits_per_pixel
 }
 
 function test_lvds
 {
-	echo "Testing LVDS display..."
+	test_title "Testing LVDS display"
 	echo 16 > /sys/class/graphics/fb0/bits_per_pixel
 	sleep 1
 	echo 0 > /sys/class/graphics/fb0/blank
 	sleep 2
 	cat /unit_tests/rose-800x600-565.rgb > /dev/fb0
 	ask_user "Could you see color changes on the LVDS display correctly? (y/N): " "LCD"
+	echo 16 > /sys/class/graphics/fb0/bits_per_pixel
 }
 
 function test_i2s_out
 {
-	echo "Testing I2S Out..."
+	test_title "Testing I2S Out"
 	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxsgtl5000 --duration=10 || error_exit "I2S Out Test Failed."
 	ask_user "Could you listen to audio on your headphone interface? (y/N): " "I2S Out"
 }
 
 function test_i2s_in
 {
-	echo "Testing I2S In..."
+	test_title "Testing I2S In"
 	arecord -D sysdefault:CARD=imxsgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -D sysdefault:CARD=imxsgtl5000 || error_exit "I2S In Test Failed."
 	ask_user "Could you listen to microphone on your headphone interface? (y/N): " "I2S In"
 }
 
 function test_spdif
 {
-	echo "Testing S/PDIF output interface..."
+	test_title "Testing S/PDIF output interface"
 	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxspdif --duration=10 || error_exit "S/PDIF Out Test Failed."
 	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "S/PDIF Out"
 }
 
 function test_audio_all
 {
-	echo "Testing Audio..."
+	test_title "Testing Audio"
 	aplay /unit_tests/audio8k16S.wav -D sysdefault:CARD=imxsgtl5000 --duration=10 &
 	arecord -D sysdefault:CARD=imxsgtl5000 -f dat -t raw --duration=10 | aplay -f dat -t raw -D sysdefault:CARD=imxspdif || error_exit "Audio Test Failed."
 	ask_user "Could you listen to audio at S/PDIF interface? (y/N): " "Audio All"
@@ -218,20 +239,20 @@ function test_audio_all
 
 function test_csi
 {
-	echo "Testing CSI interface..."
-	echo "Done."
+	test_title "Testing CSI interface"
+	test_success "Done."
 }
 
 function test_mipi
 {
-	echo "Testing MIPI interface..."
-	echo "Done."
+	test_title "Testing MIPI interface"
+	test_success "Done."
 }
 
 function test_can
 {
 	CAN_INTERFACE=$1
-	echo "Testing $CAN_INTERFACE interfaces..."
+	test_title "Testing $CAN_INTERFACE interfaces"
 	ifconfig $CAN_INTERFACE down || error_exit "Failed to close $CAN_INTERFACE interface."
 	
 	ip link set $CAN_INTERFACE type can bitrate 250000 || error_exit "Failed to configure $CAN_INTERFACE interface."
@@ -244,7 +265,7 @@ function test_can
 	
 	ifconfig $CAN_INTERFACE down || error_exit "Failed to close $CAN_INTERFACE interface."
 
-	echo "Done."
+	test_success "Done."
 }
 
 function test_can0
@@ -260,69 +281,68 @@ function test_can1
 function test_i2c
 {
 	# Checks for existance of some i2c peripherals
-	echo "Testing I2C interfaces..."
+	test_title "Testing I2C interfaces"
 	if [ $(cat /sys/class/sound/card0/id) != "imxsgtl5000" ] && [ $(cat /sys/class/sound/card1/id) != "imxsgtl5000" ]
 	then 
 		error_exit "I2C Test failed: sgtl5000 not found."
 	fi
-	echo "Done."
+	test_success "Done."
 }
 
 function test_sleep
 {
 	let SLEEP_TIME=5
-	echo "Testing Sleep and Wake Up..."
+	test_title "Testing Sleep and Wake Up"
 	echo "The system will sleep for $SLEEP_TIME seconds. You can check for current drop to below 180mA..."
 	rtcwake -m mem -s $SLEEP_TIME || error_exit "Sleep Test failed."
-	echo "Done."
+	test_success "Done."
 }
 
 function test_gps
 {
-	echo "Testing GPS..."
+	test_title "Testing GPS"
 	if [ $(lsusb | grep -i "U-Blox AG" | wc -l) -eq 0 ]
 	then
 		error_exit "GPS not detected."
 	fi
-	if [ $(timeout 10s cat /dev/ttyACM0 | grep -Ei "gga|rmc" | wc -l) -ge 1 ]
-	then
-		echo "Done."
-	else
-		error_exit "GPS is not working."
-	fi
+	test_success "Done."
 }
 
 function test_modem
 {
-	echo "Testing 3G Modem..."
-	
-	echo "Done."
+	test_title "Testing 3G Modem"
+	if [ $(lsusb | grep -i "Comneon" | wc -l) -eq 0 ]
+	then
+		error_exit "3G Modem not detected."
+	fi
+	test_success "Done."
 }
 
 function test_wifi
 {
 	WLAN_INTERFACE=$1
-	echo "Testing Wifi $WLAN_INTERFACE..."
+	test_title "Testing Wifi $WLAN_INTERFACE"
 	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
 	then
 		ip link set $WLAN_INTERFACE up || error_exit "Failed to start wlan interface."
 		if [ $(iw dev $WLAN_INTERFACE scan | grep -i "SSID" | wc -l) -ge 1 ]
 		then
-			echo "Done."
+			ifconfig $WLAN_INTERFACE down
+			test_success "Done."
 		else
+			ifconfig $WLAN_INTERFACE down
 			error_exit "Could not find any wireless network."
 		fi
 	else
 		error_exit "$WLAN_INTERFACE interface not found."
 	fi
-	ifconfig $WLAN_INTERFACE down
 }
 
 function test_bluetooth
 {
 	BT_INTERFACE=$1
 	WLAN_INTERFACE=wlan0
-	echo "Testing Bluetooth $BT_INTERFACE..."
+	test_title "Testing Bluetooth $BT_INTERFACE"
 	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
 	then
 		ifconfig $WLAN_INTERFACE up || error_exit "Failed to start wlan interface."
@@ -342,7 +362,7 @@ function test_bluetooth
 		
 		if [ $DEVICES -gt 1 ]
 		then
-			echo "Done."
+			test_success "Done."
 		else
 			error_exit "Could not find any bluetooth device."
 		fi
@@ -353,10 +373,10 @@ function test_bluetooth
 
 function test_9axis
 {
-	echo "Testing 9-Axis..."
+	test_title "Testing 9-Axis"
 	if [ $(cat /sys/bus/i2c/devices/0-001e/name) == "lsm9ds1-mag" ] && [ $(cat /sys/bus/i2c/devices/0-006b/name) == "lsm9ds1-acc-gyr" ]
 	then
-		echo "Done"
+		test_success "Done"
 	else
 		error_exit "9-Axis not detected" 
 	fi
@@ -393,6 +413,9 @@ do
        	usbh)
        			test_usbh
        			;;
+        modem)
+        		test_modem
+        		;;
        	mmc)
        			test_mmc
        			;;
@@ -438,8 +461,8 @@ do
         wlan0)
         		test_wifi wlan0
         		;;
-        wls1p0)
-        		test_wifi wls1p0
+        wlp1s0)
+        		test_wifi wlp1s0
         		;;
        	bluetooth)
        			test_bluetooth hci0
@@ -452,12 +475,12 @@ do
        			test_spi
        			test_usbh
        			test_pcie
-       			test_audio_all
+       			test_i2s_out
        			test_lcd
        			;;
        	kit-cn)		
        			test_gps
-       			test_modem
+       			#test_modem
        			test_wifi wlan0
        			test_bluetooth hci0
        			test_9axis
@@ -482,7 +505,7 @@ do
         		test_ts
         		test_lcd
         		test_lvds
-        		test_audio_all
+        		test_i2s_out
         		#test_csi
         		#test_mipi
         		test_sleep

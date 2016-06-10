@@ -10,7 +10,7 @@ DESCRIPTION = "Linux kernel for Turing Machines, with full support for the i.MX6
 
 DEPENDS += "lzop-native bc-native"
 
-SRCREV = "44be687fd3ddc8e7b9cb95ffbdcb00f5273e55d6"
+SRCREV = "ef014bce3dbb55fe297d9a9a17111734ba3ac4cc"
 SRCBRANCH = "imx6x-3.14.52"
 
 SRC_URI = "git://github.com/TuringComputer/linux.git;protocol=https;branch=${SRCBRANCH} \
