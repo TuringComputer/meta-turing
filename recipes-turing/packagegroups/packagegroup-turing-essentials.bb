@@ -32,6 +32,7 @@ RDEPENDS_packagegroup-turing-essentials = "\
   	ethtool \
   	dbus \
   	alsa-utils \
+    dosfstools \
+    unblank-fb2 \
     turing-production-tools \
-    unblank-f2 \
     "
