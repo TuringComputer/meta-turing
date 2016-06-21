@@ -16,7 +16,6 @@ RDEPENDS_packagegroup-turing-linux-firmware = "\
 	linux-firmware-iwlwifi-6000-4 \
 	linux-firmware-iwlwifi-6000g2a-5 \
 	linux-firmware-iwlwifi-6000g2a-6 \
-	linux-firmware-iwlwifi-6000g2a-5 \
 	linux-firmware-iwlwifi-6000g2b-6 \
 	linux-firmware-iwlwifi-6050-4 \
 	linux-firmware-iwlwifi-6050-5 \
