@@ -8,8 +8,7 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_packagegroup-turing-qt5-tools = "\
-  	qt3d \
-    qtbase \
+        qtbase \
   	qtbase-fonts \
   	qtbase-plugins \
   	qtcanvas3d \
@@ -49,9 +48,6 @@ RDEPENDS_packagegroup-turing-qt5-tools = "\
   	qttools-plugins \
   	qtwebchannel \
   	qtwebchannel-qmlplugins \
-  	qtwebengine \
-  	qtwebengine-plugins \
-  	qtwebengine-qmlplugins \
   	qtwebkit \
   	qtwebkit-qmlplugins \
   	qtwebsockets \
