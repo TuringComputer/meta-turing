@@ -33,6 +33,7 @@ RDEPENDS_packagegroup-turing-essentials = "\
   	dbus \
   	alsa-utils \
     dosfstools \
+    rt-tests \
     unblank-fb2 \
     turing-production-tools \
     "
