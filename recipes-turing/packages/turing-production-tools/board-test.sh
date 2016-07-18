@@ -311,6 +311,27 @@ function test_gps
 function test_modem
 {
 	test_title "Testing 3G Modem"
+	
+	let PWR_ON="8"
+    let RESET_IN="174"
+
+    echo ${PWR_ON} > /sys/class/gpio/export
+    echo ${RESET_IN} > /sys/class/gpio/export
+    echo "out" > /sys/class/gpio/gpio${PWR_ON}/direction
+    echo "out" > /sys/class/gpio/gpio${RESET_IN}/direction
+
+    echo 1 > /sys/class/gpio/gpio${PWR_ON}/value
+    echo 0 > /sys/class/gpio/gpio${RESET_IN}/value
+
+    echo 0 > /sys/class/gpio/gpio${PWR_ON}/value
+    echo 1 > /sys/class/gpio/gpio${RESET_IN}/value
+
+    echo ${PWR_ON} > /sys/class/gpio/unexport
+ 	echo ${RESET_IN} > /sys/class/gpio/unexport
+
+	# Wait for USB device to come up
+    sleep 10
+	
 	if [ $(lsusb | grep -i "Comneon" | wc -l) -eq 0 ]
 	then
 		error_exit "3G Modem not detected."
