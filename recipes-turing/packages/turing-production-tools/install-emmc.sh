@@ -2,9 +2,9 @@
 
 print_usage()
 {
-	echo -e "\nUSAGE: ${0} --fw-dir=[firmware-dir]\n"
+	echo -e "\nUSAGE: ${0} --fw-dir=[firmware-dir] --fw-dev=[firmware-dev] --install-rootfs=[true|false] --fw-img=[image-filename]\n"
 	echo -e "EXAMPLE:"
-	echo -e "${0} --fw-dir=/fw \n"
+	echo -e "${0} --fw-dir=/media/fw --fw-dev=/dev/mmcblk0p3 --install-rootfs=true --fw-img=image.sdcard\n"
 	return
 }
 
@@ -16,6 +16,9 @@ function error_exit
 }
 
 FW_DIR="/media/fw"
+FW_DEV="/dev/mmcblk0p3"
+INSTALL_ROOTFS=true
+FW_IMAGE=image.sdcard
 
 #######################################
 # Parse command-line arguments
@@ -27,6 +30,15 @@ do
         --fw-dir=*)
                 FW_DIR=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
                 ;;
+        --fw-dev=*)
+	            FW_DEV=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	            ;;
+        --install-rootfs=*)
+	            INSTALL_ROOTFS=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	            ;;
+	    --fw-img=*)
+	            FW_IMAGE=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	            ;;
         *)
                 # unknown option
                 print_usage
@@ -37,7 +49,7 @@ done
 
 echo "Mounting firmware partition..."
 mkdir -p ${FW_DIR} || error_exit "Error creating ${FW_DIR} mounting point"
-mount /dev/mmcblk0p3 ${FW_DIR} || error_exit "Error mounting mmcblk0p3 at ${FW_DIR}"
+mount ${FW_DEV} ${FW_DIR} || error_exit "Error mounting mmcblk0p3 at ${FW_DIR}"
 
 # Starting
 echo "Installing firmware on e-MMC..."
@@ -67,9 +79,16 @@ echo "Copying SPL to e-MMC 2nd boot region..."
 dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot1 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot1"
 sync
 
-echo "Installing the whole firmware image to e-MMC..."
-dd if=${FW_DIR}/image.sdcard of=/dev/mmcblk3 bs=1k || error_exit "Error while copying the firmware image to mmcblk3"
-sync
+if [ "${INSTALL_ROOTFS}" == "true" ]
+then
+	echo "Installing the whole firmware image to e-MMC..."
+	dd if=${FW_DIR}/${FW_IMAGE} of=/dev/mmcblk3 bs=1k || error_exit "Error while copying the firmware image to mmcblk3"
+	sync
+else
+	echo "Copying just u-boot to e-MMC..."
+	dd if=${FW_DIR}/u-boot.img of=/dev/mmcblk3 bs=1k seek=69 || error_exit "Error while copying u-boot image to mmcblk3"
+	sync
+fi
 
 # Done
 echo "Firmware installed successfully!"
