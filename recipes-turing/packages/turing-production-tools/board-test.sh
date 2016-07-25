@@ -157,12 +157,18 @@ function test_mmc
 
 function test_pcie
 {
-	test_title "Testing PCI-e"
-	if [ $(lspci | wc -l) -ge 1 ]
+	# if /sys/devices/soc0/soc/1ffc000.pcie/ exists
+	# then we should test it.. otherwise, we ignore this test
+	# because we are running Solo or Dual Lite versions
+	if [ -e "/sys/devices/soc0/soc/1ffc000.pcie/" ]
 	then
-		test_success "Done."
-	else
-		error_exit "PCI-e Test failed."
+		test_title "Testing PCI-e"
+		if [ $(lspci | wc -l) -ge 1 ]
+		then
+			test_success "Done."
+		else
+			error_exit "PCI-e Test failed."
+		fi
 	fi
 }
 
