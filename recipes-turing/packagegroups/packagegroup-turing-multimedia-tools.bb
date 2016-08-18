@@ -13,4 +13,5 @@ RDEPENDS_packagegroup-turing-multimedia-tools = "\
     packagegroup-fsl-gstreamer1.0-full \
   	gstreamer1.0-plugins-imx \
   	${@base_contains("SOC_FAMILY", "mx6ul", "", "imx-vpu", d)} \
+  	fmtools \
     "
