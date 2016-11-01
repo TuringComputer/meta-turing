@@ -18,4 +18,5 @@ RDEPENDS_packagegroup-turing-qt5-demos = "\
     quitindicators \
     \
     qt5-demo \
+    qt5-demo-extrafiles \
     "

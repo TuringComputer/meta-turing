@@ -28,12 +28,23 @@ RDEPENDS_packagegroup-turing-essentials = "\
   	imx-test \
   	util-linux \
   	coreutils \
+  	usbutils \
   	cpufrequtils \
   	ethtool \
   	dbus \
   	alsa-utils \
     dosfstools \
     rt-tests \
+    bc \
+    pv \
+    gawk \
+    screen \
+    logrotate \
+    libidn \
+    lsb \
+    vim \
+    file \
+    perl-modules \
     unblank-fb2 \
     turing-production-tools \
     "

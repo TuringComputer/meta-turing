@@ -12,6 +12,12 @@ RDEPENDS_packagegroup-turing-multimedia-tools = "\
 	packagegroup-fsl-gstreamer1.0 \
     packagegroup-fsl-gstreamer1.0-full \
   	gstreamer1.0-plugins-imx \
-  	${@base_contains("SOC_FAMILY", "mx6ul", "", "imx-vpu", d)} \
+  	imx-vpu \
   	fmtools \
+  	ffmpeg \
+  	speex \
+  	pulseaudio \
+  	cairo pango fontconfig fontconfig-utils freetype \
+  	packagegroup-fonts-truetype \
+    alsa-lib alsa-state fsl-alsa-plugins \
     "

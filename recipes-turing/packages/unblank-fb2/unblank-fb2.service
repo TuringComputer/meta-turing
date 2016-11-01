@@ -1,7 +1,7 @@
 # See http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=systemd.service
 
 [Unit]
-Description=Qt5 Demo application
+Description=Unblank second framebuffer
 After=multi-user.target
 
 [Service]

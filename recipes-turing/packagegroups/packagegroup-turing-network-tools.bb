@@ -14,4 +14,14 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     wget \
     wvdial \
     iptables \
+    openssl \
+    ca-certificates \
+    libssh2 \
+    net-tools \
+    libcurl \
+    curl \
+    netcat \
+    apache2 \
+    lighttpd \
+    wpa-supplicant \
     "

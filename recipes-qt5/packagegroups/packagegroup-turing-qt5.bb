@@ -7,7 +7,7 @@ LICENSE = "MIT"
 
 inherit packagegroup
 
-RDEPENDS_packagegroup-turing-qt5-tools = "\
+RDEPENDS_packagegroup-turing-qt5 = "\
   	qt3d \
     qtbase \
   	qtbase-fonts \
