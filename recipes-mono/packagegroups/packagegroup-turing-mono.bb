@@ -19,5 +19,4 @@ RDEPENDS_packagegroup-turing-mono = "\
   	fsharp \
   	libgdiplus \
   	mono-basic \
-  	mono-xsp \
     "
