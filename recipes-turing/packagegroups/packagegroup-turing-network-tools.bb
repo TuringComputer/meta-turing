@@ -24,4 +24,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     apache2 \
     lighttpd \
     wpa-supplicant \
+    nfs-utils \
     "
