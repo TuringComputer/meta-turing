@@ -9,6 +9,7 @@ IMAGE_INSTALL += " \
 	packagegroup-turing-opencv \
 	packagegroup-turing-mono \
 	packagegroup-turing-nodejs \
+	packagegroup-turing-opencv \
 	oracle-jse-jre \
 	chromium \
 	leafpad \

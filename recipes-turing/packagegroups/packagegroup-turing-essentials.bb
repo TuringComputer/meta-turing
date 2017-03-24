@@ -17,6 +17,8 @@ RDEPENDS_packagegroup-turing-essentials = "\
     minicom \
     i2c-tools \
     strace \
+    ltrace \
+    ldd \
     libtool \ 
     pciutils \
     stress \
