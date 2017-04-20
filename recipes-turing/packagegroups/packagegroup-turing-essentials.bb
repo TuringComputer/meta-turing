@@ -15,6 +15,7 @@ RDEPENDS_packagegroup-turing-essentials = "\
     nano \
     iperf \
     minicom \
+    picocom \
     i2c-tools \
     strace \
     ltrace \
@@ -23,7 +24,6 @@ RDEPENDS_packagegroup-turing-essentials = "\
     pciutils \
     stress \
     memtester \
-    canutils \
     evtest \
     mtd-utils \
     mtd-utils-ubifs \
@@ -32,7 +32,6 @@ RDEPENDS_packagegroup-turing-essentials = "\
   	coreutils \
   	usbutils \
   	cpufrequtils \
-  	ethtool \
   	dbus \
   	alsa-utils \
     dosfstools \
@@ -48,5 +47,6 @@ RDEPENDS_packagegroup-turing-essentials = "\
     file \
     perl-modules \
     unblank-fb2 \
+    cronie \
     turing-production-tools \
     "

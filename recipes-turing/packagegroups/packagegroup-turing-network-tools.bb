@@ -8,6 +8,7 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_packagegroup-turing-network-tools = "\
+	openssh-sftp-server \
     dhcp-client \
     dhcp-server \
     hostapd \
@@ -25,4 +26,7 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     lighttpd \
     wpa-supplicant \
     nfs-utils \
+    tcpdump \
+    canutils \
+    ethtool \
     "
