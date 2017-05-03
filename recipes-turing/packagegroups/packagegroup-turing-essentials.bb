@@ -46,7 +46,5 @@ RDEPENDS_packagegroup-turing-essentials = "\
     vim \
     file \
     perl-modules \
-    unblank-fb2 \
     cronie \
-    turing-production-tools \
     "

@@ -54,8 +54,8 @@ mount ${FW_DEV} ${FW_DIR} || error_exit "Error mounting mmcblk0p3 at ${FW_DIR}"
 # Starting
 echo "Installing firmware on e-MMC..."
 
-echo "Enabling boot partitions..."
-echo 8 > /sys/devices/soc0/soc.0/2100000.aips-bus/219c000.usdhc/mmc_host/mmc3/mmc3:0001/boot_config || error_exit "Error while enabling boot at e-MMC"
+#echo "Enabling boot partitions..."
+#echo 8 > /sys/devices/soc0/soc.0/2100000.aips-bus/219c000.usdhc/mmc_host/mmc3/mmc3:0001/boot_config || error_exit "Error while enabling boot at e-MMC"
 
 echo "Enabling write operations on mmcblk3boot0..."
 echo 0 > /sys/block/mmcblk3boot0/force_ro || error_exit "Error while enabling write operations mmcblk3boot0"
