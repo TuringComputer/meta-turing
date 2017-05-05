@@ -19,7 +19,7 @@ do_install () {
 	ln -sf ${datadir}/${JDK_JRE}${PV}_${PV_UPDATE}/bin/java ${D}${bindir}/java
 }
 
-# All the files are provided in a binaray package, and keeping all the
+# All the files are provided in a binary package, and keeping all the
 # files in a single package causes packaging QA errors and warnings.
 # Avoid these packaging failure by skiping all the QA checks
 INSANE_SKIP_${PN} = "${ERROR_QA} ${WARN_QA}"
