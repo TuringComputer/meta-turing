@@ -29,4 +29,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     tcpdump \
     canutils \
     ethtool \
+    bridge-utils \
     "
