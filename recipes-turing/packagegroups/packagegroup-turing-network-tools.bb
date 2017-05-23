@@ -30,4 +30,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     canutils \
     ethtool \
     bridge-utils \
+    libnfc-nci \
     "
