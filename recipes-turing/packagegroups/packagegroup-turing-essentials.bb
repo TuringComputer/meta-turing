@@ -47,4 +47,5 @@ RDEPENDS_packagegroup-turing-essentials = "\
     file \
     perl-modules \
     cronie \
+    watchdogd \
     "
