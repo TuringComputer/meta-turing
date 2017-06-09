@@ -48,4 +48,5 @@ RDEPENDS_packagegroup-turing-essentials = "\
     perl-modules \
     cronie \
     watchdogd \
+    rs485cfg \
     "
