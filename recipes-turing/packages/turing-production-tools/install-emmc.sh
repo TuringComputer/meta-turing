@@ -2,23 +2,56 @@
 
 print_usage()
 {
-	echo -e "\nUSAGE: ${0} --fw-dir=[firmware-dir] --fw-dev=[firmware-dev] --install-rootfs=[true|false] --fw-img=[image-filename]\n"
+	echo -e "\nUSAGE: ${0} --target=[target-dev] --fw-spl=[spl-image] --fw-img=[sdcard-image]\n"
 	echo -e "EXAMPLE:"
-	echo -e "${0} --fw-dir=/media/fw --fw-dev=/dev/mmcblk0p3 --install-rootfs=true --fw-img=image.sdcard\n"
+	echo -e "${0} --fw-spl=SPL --fw-img=image.sdcard --target=mmcblk3\n"
 	return
+}
+
+print_vars()
+{
+	echo "------------------------------------"
+	echo FW_DIR=${FW_DIR}
+	echo FW_SPL_IMAGE=${FW_SPL_IMAGE}
+	echo FW_SDCARD_IMAGE=${FW_SPL_IMAGE}
+	echo TARGET_MMC_DEV=${TARGET_MMC_DEV}
+	echo "------------------------------------"
+}
+
+function print_bold
+{
+    echo ""
+    echo -e "\e[1m\e[4m$1\e[0m"
+    echo ""
+}
+
+function print_title
+{
+    echo ""
+    echo -e "\e[93m\e[1m\e[4m$1\e[0m"
+    echo ""
+}
+
+function print_success
+{
+    echo ""
+    echo -e "\e[92m\e[1m$1\e[0m"
+    echo ""
 }
 
 function error_exit
 {
-	echo "$1" 1>&2
+    echo ""
+    echo -e "\e[31m\e[1m\e[4m$1\e[0m" 1>&2
+    echo ""
 	exit 1
 	return
 }
 
-FW_DIR="/media/fw"
-FW_DEV="/dev/mmcblk0p3"
-INSTALL_ROOTFS=true
-FW_IMAGE=image.sdcard
+FW_DIR=$(pwd)
+FW_SPL_IMAGE=SPL
+FW_SDCARD_IMAGE=
+TARGET_MMC_DEV=mmcblk3
 
 #######################################
 # Parse command-line arguments
@@ -27,17 +60,14 @@ FW_IMAGE=image.sdcard
 for i in $*
 do
         case $i in
-        --fw-dir=*)
-                FW_DIR=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
-                ;;
-        --fw-dev=*)
-	            FW_DEV=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
-	            ;;
-        --install-rootfs=*)
-	            INSTALL_ROOTFS=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        --fw-spl=*)
+	            FW_SPL_IMAGE=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
 	            ;;
 	    --fw-img=*)
-	            FW_IMAGE=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	            FW_SDCARD_IMAGE=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+	            ;;
+	    --target=*)
+	            TARGET_MMC_DEV=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
 	            ;;
         *)
                 # unknown option
@@ -47,48 +77,43 @@ do
         esac
 done
 
-echo "Mounting firmware partition..."
-mkdir -p ${FW_DIR} || error_exit "Error creating ${FW_DIR} mounting point"
-mount ${FW_DEV} ${FW_DIR} || error_exit "Error mounting mmcblk0p3 at ${FW_DIR}"
-
 # Starting
-echo "Installing firmware on e-MMC..."
+print_title "Installing firmware on e-MMC"
 
-#echo "Enabling boot partitions..."
+print_vars
+
+# This has been commented out since kernel 4.1.15 does not need it anymore
+#print_bold "Enabling boot partitions"
 #echo 8 > /sys/devices/soc0/soc.0/2100000.aips-bus/219c000.usdhc/mmc_host/mmc3/mmc3:0001/boot_config || error_exit "Error while enabling boot at e-MMC"
 
-echo "Enabling write operations on mmcblk3boot0..."
-echo 0 > /sys/block/mmcblk3boot0/force_ro || error_exit "Error while enabling write operations mmcblk3boot0"
+print_bold "Enabling write operations on ${TARGET_MMC_DEV}boot0"
+echo 0 > /sys/block/${TARGET_MMC_DEV}boot0/force_ro || error_exit "Error while enabling write operations ${TARGET_MMC_DEV}boot0"
 
-echo "Erasing entire mmcblk3boot0 region..."
-dd if=/dev/zero of=/dev/mmcblk3boot0
+print_bold "Erasing entire mmcblk3boot0 region"
+dd if=/dev/zero of=/dev/${TARGET_MMC_DEV}boot0
 sync
 
-echo "Copying SPL to e-MMC 1st boot region..."
-dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot0 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot0"
+print_bold "Copying SPL to e-MMC 1st boot region"
+dd if=${FW_DIR}/${FW_SPL_IMAGE} of=/dev/${TARGET_MMC_DEV}boot0 bs=1k seek=1 || error_exit "Error while copying SPL image to ${TARGET_MMC_DEV}boot0"
 sync
 
-echo "Enabling write operations on mmcblk3boot1..."
-echo 0 > /sys/block/mmcblk3boot1/force_ro || error_exit "Error while enabling write operations mmcblk3boot1"
+print_bold "Enabling write operations on ${TARGET_MMC_DEV}boot1"
+echo 0 > /sys/block/${TARGET_MMC_DEV}boot1/force_ro || error_exit "Error while enabling write operations ${TARGET_MMC_DEV}boot1"
 
-echo "Erasing entire mmcblk3boot1 region..."
-dd if=/dev/zero of=/dev/mmcblk3boot1
+print_bold "Erasing entire ${TARGET_MMC_DEV}boot1 region"
+dd if=/dev/zero of=/dev/${TARGET_MMC_DEV}boot1
 sync
 
-echo "Copying SPL to e-MMC 2nd boot region..."
-dd if=${FW_DIR}/SPL of=/dev/mmcblk3boot1 bs=1k seek=1 || error_exit "Error while copying SPL image to mmcblk3boot1"
+print_bold "Copying SPL to e-MMC 2nd boot region"
+dd if=${FW_DIR}/${FW_SPL_IMAGE} of=/dev/${TARGET_MMC_DEV}boot1 bs=1k seek=1 || error_exit "Error while copying SPL image to ${TARGET_MMC_DEV}boot1"
 sync
 
-if [ "${INSTALL_ROOTFS}" == "true" ]
+if [ ! -z ${FW_SDCARD_IMAGE} ]
 then
-	echo "Installing the whole firmware image to e-MMC..."
-	dd if=${FW_DIR}/${FW_IMAGE} of=/dev/mmcblk3 bs=1k || error_exit "Error while copying the firmware image to mmcblk3"
-	sync
-else
-	echo "Copying just u-boot to e-MMC..."
-	dd if=${FW_DIR}/u-boot.img of=/dev/mmcblk3 bs=1k seek=69 || error_exit "Error while copying u-boot image to mmcblk3"
+	print_bold "Installing the whole firmware image to e-MMC"
+	dd if=${FW_DIR}/${FW_SDCARD_IMAGE} of=/dev/${TARGET_MMC_DEV} bs=1k || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
 	sync
 fi
 
 # Done
-echo "Firmware installed successfully!"
+print_success "Firmware installed successfully!"

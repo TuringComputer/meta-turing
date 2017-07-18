@@ -8,6 +8,6 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_packagegroup-turing-tools = "\
-    unblank-fb2 \
+    ${@base_contains("SOC_FAMILY", "mx6ul", "", "unblank-fb2", d)} \
     turing-production-tools \
     "

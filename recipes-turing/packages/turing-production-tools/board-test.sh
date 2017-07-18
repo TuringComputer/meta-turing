@@ -4,12 +4,14 @@ print_usage()
 {
 	echo "USAGE: ${0} [test]"
 	echo "Available tests are:"
+	echo "soc              Prints SOC type."
 	echo "all              Run all tests below."
 	echo "cpu              Run CPU stress tests."
 	echo "ddr3             Run DDR3 stress and integrity tests."
 	echo "full_ddr3        Run DDR3 stress and integrity tests on all free memory."
-	echo "sata             Checks if there is a SATA hard drive (/dev/sda) attached to the board."
-	echo "spi              Checks if there is a NOR Flash (/dev/mtd0) attached to SPI bus."
+	echo "sata             Checks if there is a SATA hard drive attached to the board."
+	echo "spi              Checks if there is a NOR Flash attached to SPI bus."
+	echo "nand             Checks if there is a NAND Flash attached to SPI bus."
 	echo "usbh             Checks if there is any USB device attached to the board."
 	echo "modem            Checks if 3G Modem is working."
 	echo "mmc              Checks if the e-MMC flash memory (/dev/mmcblk3) is present."
@@ -31,6 +33,7 @@ print_usage()
 	echo "bluetooth        Checks if Bluetooth (WILC3000) is working."
 	echo "sleep            Checks if the board can sleep and wakeup properly."
 	echo "kit-cpu          Runs all tests related to Turing's System on Module."
+	echo "kit-cpu-fast     Runs only most important tests related to Turing's System on Module."
 	echo "kit-mb           Runs all tests related to Turing's Motherboard."
 	echo "kit-cn           Runs all tests related to Turing's Connectivity Expansion Board."
 	echo "kit-dis          Runs all tests related to Turing's Display Expansion Board."
@@ -74,6 +77,60 @@ function ask_user
 	fi
 }
 
+function get_cmdline
+{
+	cat /proc/cmdline
+}
+
+function get_soc
+{
+	SOC=""
+	for i in $*
+	do
+		case $i in
+		soc=*)
+			SOC=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+			;;
+		*)
+			;;
+		esac
+	done
+	echo $SOC
+}
+
+function is_mx6ul
+{
+    SOC=$(get_soc $(get_cmdline))
+    if [ "$SOC" = "MX6UL" ] || [ "$SOC" = "MX6ULL" ]
+	then
+	    echo 1
+	else
+		echo 0
+	fi
+}
+
+function is_mx6q
+{
+    SOC=$(get_soc $(get_cmdline))
+    if [ "$SOC" = "MX6Q" ] || [ "$SOC" = "MX6D" ]
+	then
+	    echo 1
+	else
+		echo 0
+	fi
+}
+
+function is_mx6dl
+{
+    SOC=$(get_soc $(get_cmdline))
+    if [ "$SOC" = "MX6S" ] || [ "$SOC" = "MX6DL" ]
+	then
+	    echo 1
+	else
+		echo 0
+	fi
+}
+
 function test_full_ddr3
 {
 	 # We test half of the free memory
@@ -81,8 +138,10 @@ function test_full_ddr3
      MEMFREE=$(grep MemFree /proc/meminfo | awk '{print $2}')
      let MEMTOTAL=($MEMTOTAL / 1024)
      let MEMFREE=($MEMFREE / 1024)
+     let MEMFREE=($MEMFREE * 90)
+     let MEMFREE=($MEMFREE / 100)
      test_title "Testing Full DDR3 ($MEMFREE MB / $MEMTOTAL MB)"
-     memtester $(MEMFREE)M 1 || error_exit "Memory Stress and Integrity Test failed."
+     memtester $(MEMFREE) 1 || error_exit "Memory Stress and Integrity Test failed."
      test_success "Done."
 }
 
@@ -107,10 +166,7 @@ function test_ddr3
 
 function test_sata
 {
-	# if /sys/devices/soc0/soc.0/2200000.sata/ exists
-	# then we should test it.. otherwise, we ignore this test
-	# because we are running Solo or Dual Lite versions
-	if [ -e "/sys/devices/soc0/soc.0/2200000.sata/" ]
+	if [ $(is_mx6q) -eq 1 ]
 	then
 		test_title "Testing SATA"
 	  	if [ -e "/dev/sda" ]
@@ -125,11 +181,31 @@ function test_sata
 function test_spi
 {
 	test_title "Testing SPI"
-	if [ -e "/dev/mtd0" ]
+	DEV="/dev/mtd0"
+	if [ $(is_mx6ul) -eq 1 ]
+	then
+		DEV="/dev/mtd9"
+	fi
+	if [ -e $DEV ]
 	then
 		test_success "Done."
 	else
 	  	error_exit "SPI Test failed."
+	fi
+}
+
+function test_nand
+{
+	DEV="/dev/mtd8"
+	if [ $(is_mx6ul) -eq 1 ]
+	then
+		test_title "Testing NAND"
+		if [ -e $DEV ]
+		then
+			test_success "Done."
+		else
+		  	error_exit "NAND Test failed."
+		fi
 	fi
 }
 
@@ -146,21 +222,21 @@ function test_usbh
 
 function test_mmc
 {
-	test_title "Testing e-MMC"
-	if [ -e "/dev/mmcblk3" ]
+	if [ $(is_mx6ul) -eq 0 ]
 	then
-	  	test_success "Done."
-	else
-	  	error_exit "e-MMC Test failed."
+		test_title "Testing e-MMC"
+		if [ -e "/dev/mmcblk3" ]
+		then
+		  	test_success "Done."
+		else
+		  	error_exit "e-MMC Test failed."
+		fi
 	fi
 }
 
 function test_pcie
 {
-	# if /sys/devices/soc0/soc/1ffc000.pcie/ exists
-	# then we should test it.. otherwise, we ignore this test
-	# because we are running Solo or Dual Lite versions
-	if [ -e "/sys/devices/soc0/soc/1ffc000.pcie/" ]
+	if [ $(is_mx6ul) -eq 0 ]
 	then
 		test_title "Testing PCI-e"
 		if [ $(lspci | wc -l) -ge 1 ]
@@ -193,25 +269,34 @@ function test_ts
 function test_lcd
 {
 	test_title "Testing RGB display"
-	echo 16 > /sys/class/graphics/fb2/bits_per_pixel
-	sleep 1
-	echo 0 > /sys/class/graphics/fb2/blank
-	sleep 2
-	cat /unit_tests/pansy-1280x720-565.rgb > /dev/fb2
-	ask_user "Could you see color changes on the RGB display correctly? (y/N): " "RGB"
-	echo 16 > /sys/class/graphics/fb2/bits_per_pixel
+	if [ $(is_mx6ul) -eq 0 ]
+	then
+		echo 16 > /sys/class/graphics/fb2/bits_per_pixel
+		sleep 1
+		echo 0 > /sys/class/graphics/fb2/blank
+		sleep 2
+		cat /unit_tests/pansy-1280x720-565.rgb > /dev/fb2
+		ask_user "Could you see color changes on the RGB display correctly? (y/N): " "RGB"
+		echo 16 > /sys/class/graphics/fb2/bits_per_pixel
+	else
+		cat /unit_tests/pansy-1280x720-565.rgb > /dev/fb0
+		ask_user "Could you see color changes on the RGB display correctly? (y/N): " "RGB"
+	fi
 }
 
 function test_lvds
 {
-	test_title "Testing LVDS display"
-	echo 16 > /sys/class/graphics/fb0/bits_per_pixel
-	sleep 1
-	echo 0 > /sys/class/graphics/fb0/blank
-	sleep 2
-	cat /unit_tests/rose-800x600-565.rgb > /dev/fb0
-	ask_user "Could you see color changes on the LVDS display correctly? (y/N): " "LCD"
-	echo 16 > /sys/class/graphics/fb0/bits_per_pixel
+	if [ $(is_mx6ul) -eq 0 ]
+	then
+		test_title "Testing LVDS display"
+		echo 16 > /sys/class/graphics/fb0/bits_per_pixel
+		sleep 1
+		echo 0 > /sys/class/graphics/fb0/blank
+		sleep 2
+		cat /unit_tests/rose-800x600-565.rgb > /dev/fb0
+		ask_user "Could you see color changes on the LVDS display correctly? (y/N): " "LCD"
+		echo 16 > /sys/class/graphics/fb0/bits_per_pixel
+	fi
 }
 
 function test_i2s_out
@@ -320,6 +405,11 @@ function test_modem
 	
 	let PWR_ON="8"
     let RESET_IN="174"
+    if [ $(is_mx6ul) -eq 1 ]
+	then
+		PWR_ON="10"
+		RESET_IN="132"
+	fi
 
     echo ${PWR_ON} > /sys/class/gpio/export
     echo ${RESET_IN} > /sys/class/gpio/export
@@ -369,6 +459,11 @@ function test_bluetooth
 {
 	BT_INTERFACE=$1
 	WLAN_INTERFACE=wlan0
+	UARTBT_INTERFACE=/dev/ttymxc2
+	if [ $(is_mx6ul) -eq 1 ]
+	then
+		UARTBT_INTERFACE=/dev/ttymxc0
+	fi
 	test_title "Testing Bluetooth $BT_INTERFACE"
 	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
 	then
@@ -377,7 +472,7 @@ function test_bluetooth
 		echo BT_DOWNLOAD_FW > /dev/at_pwr_dev
 		if [ ! -e "/sys/class/bluetooth/$BT_INTERFACE" ]
 		then
-			hciattach -n -s 115200 /dev/ttymxc2 any 115200 noflow &
+			hciattach -n -s 115200 $UARTBT_INTERFACE any 115200 noflow &
 			sleep 5
 		fi
 		hciconfig $BT_INTERFACE up
@@ -422,6 +517,18 @@ START_TIME=`date +%s`
 for i in $*
 do
         case $i in
+        is_mx6ul)
+        		echo $(is_mx6ul)
+        		;;
+        is_mx6q)
+        		echo $(is_mx6q)
+        		;;
+        is_mx6dl)
+        		echo $(is_mx6dl)
+        		;;
+        soc)
+        		echo $(get_soc $(get_cmdline))
+        		;;
         full_ddr3)
         		test_full_ddr3
         		;;
@@ -436,6 +543,9 @@ do
        			;;
        	spi)
        			test_spi
+       			;;
+        nand)
+       			test_nand
        			;;
        	usbh)
        			test_usbh
@@ -507,7 +617,7 @@ do
        			;;
        	kit-cn)		
        			test_gps
-       			#test_modem
+       			test_modem
        			test_wifi wlan0
        			test_bluetooth hci0
        			test_9axis
@@ -519,12 +629,15 @@ do
         		test_lvds
        			;;
         kit-cpu)
+        		TITLE="Testing $(get_soc $(get_cmdline))"
+        		test_title "$TITLE"
         		test_cpu
         		test_ddr3
         		test_sata
         		test_spi
         		test_usbh
         		test_mmc
+        		test_nand
         		test_i2c
         		test_can0
         		test_can1
@@ -537,6 +650,19 @@ do
         		#test_mipi
         		test_sleep
         		;;
+        kit-cpu-fast)
+        		TITLE="Testing CPU $(get_soc $(get_cmdline))"
+        		test_title "$TITLE"
+        		test_cpu
+        		test_ddr3
+        		test_sata
+        		test_spi
+        		test_usbh
+        		test_mmc
+        		test_nand
+        		test_i2c
+        		test_sleep
+        		;;
         all)
         		test_cpu
         		test_ddr3
@@ -544,6 +670,7 @@ do
         		test_spi
         		test_usbh
         		test_mmc
+        		test_nand
         		test_i2c
         		test_can0
         		test_can1
