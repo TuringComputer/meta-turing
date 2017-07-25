@@ -111,7 +111,7 @@ sync
 if [ ! -z ${FW_SDCARD_IMAGE} ]
 then
 	print_bold "Installing the whole firmware image to e-MMC"
-	dd if=${FW_DIR}/${FW_SDCARD_IMAGE} of=/dev/${TARGET_MMC_DEV} bs=1k || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
+	dd if=${FW_DIR}/${FW_SDCARD_IMAGE} of=/dev/${TARGET_MMC_DEV} bs=1M || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
 	sync
 fi
 
