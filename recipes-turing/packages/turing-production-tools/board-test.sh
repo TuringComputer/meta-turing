@@ -459,10 +459,10 @@ function test_bluetooth
 {
 	BT_INTERFACE=$1
 	WLAN_INTERFACE=wlan0
-	UARTBT_INTERFACE=/dev/ttymxc2
+	UARTBT_INTERFACE=ttymxc2
 	if [ $(is_mx6ul) -eq 1 ]
 	then
-		UARTBT_INTERFACE=/dev/ttymxc0
+		UARTBT_INTERFACE=ttymxc0
 	fi
 	test_title "Testing Bluetooth $BT_INTERFACE"
 	if [ -e "/sys/class/net/$WLAN_INTERFACE" ]
@@ -472,8 +472,7 @@ function test_bluetooth
 		echo BT_DOWNLOAD_FW > /dev/at_pwr_dev
 		if [ ! -e "/sys/class/bluetooth/$BT_INTERFACE" ]
 		then
-			hciattach -n -s 115200 $UARTBT_INTERFACE any 115200 noflow &
-			sleep 5
+			hciattach $UARTBT_INTERFACE any 115200 noflow
 		fi
 		hciconfig $BT_INTERFACE up
 		DEVICES=$(hcitool scan | wc -l)
@@ -481,8 +480,9 @@ function test_bluetooth
 		echo BT_POWER_DOWN > /dev/at_pwr_dev
 		hciconfig $BT_INTERFACE down
 		ifconfig $WLAN_INTERFACE down
+		killall hciattach
 		
-		if [ $DEVICES -gt 1 ]
+		if [ $DEVICES -ge 1 ]
 		then
 			test_success "Done."
 		else
