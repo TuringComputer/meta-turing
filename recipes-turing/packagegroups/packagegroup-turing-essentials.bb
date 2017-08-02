@@ -8,10 +8,10 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_packagegroup-turing-essentials = "\
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib-conf", "", d)} \
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib-tests", "", d)} \
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib-calibrate", "", d)} \
-    ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib", "", d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "tslib-conf", "", d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "tslib-tests", "", d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "tslib-calibrate", "", d)} \
+    ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "tslib", "", d)} \
     nano \
     iperf \
     minicom \
