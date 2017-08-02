@@ -11,7 +11,7 @@ PV = "2017.03"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=a2c678cfd4a4d97135585cad908541c6"
 
-SRCREV = "d46fe4a66117ca727891f5c01cb0aec1be9ea507"
+SRCREV = "1d025c3f02f1054b83eeed82471c3bed8adf64ee"
 SRCBRANCH = "imx-2017.03"
 
 SRC_URI = "git://github.com/TuringComputer/uboot.git;protocol=https;branch=${SRCBRANCH}"

@@ -101,7 +101,7 @@ function get_soc
 function is_mx6ul
 {
     SOC=$(get_soc $(get_cmdline))
-    if [ "$SOC" = "MX6UL" ] || [ "$SOC" = "MX6ULL" ]
+    if [ "$SOC" = "IMX6G" ] || [ "$SOC" = "IMX6Y" ]
 	then
 	    echo 1
 	else
@@ -112,7 +112,7 @@ function is_mx6ul
 function is_mx6q
 {
     SOC=$(get_soc $(get_cmdline))
-    if [ "$SOC" = "MX6Q" ] || [ "$SOC" = "MX6D" ]
+    if [ "$SOC" = "IMX6Q" ] || [ "$SOC" = "IMX6D" ]
 	then
 	    echo 1
 	else
@@ -123,7 +123,7 @@ function is_mx6q
 function is_mx6dl
 {
     SOC=$(get_soc $(get_cmdline))
-    if [ "$SOC" = "MX6S" ] || [ "$SOC" = "MX6DL" ]
+    if [ "$SOC" = "IMX6S" ] || [ "$SOC" = "IMX6U" ]
 	then
 	    echo 1
 	else
