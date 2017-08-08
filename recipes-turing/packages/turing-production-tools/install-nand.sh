@@ -1,6 +1,6 @@
 #!/bin/sh
 
-print_usage()
+function print_usage
 {
 	echo -e "\nUSAGE: ${0} --spl=[spl-image] --uboot=[uboot-image] --kernel=[kernel-zImage] --dtbul0=[DTB-UL0] --dtbul1=[DTB-UL1] --dtbull0=[DTB-ULL0] --dtbull1=[DTB-UL1] --ubi=[ubi-image]\n"
 	echo -e "EXAMPLE:"
@@ -8,7 +8,7 @@ print_usage()
 	return
 }
 
-print_vars()
+function print_vars
 {
 	echo "------------------------------------"
 	echo FW_DIR=${FW_DIR}

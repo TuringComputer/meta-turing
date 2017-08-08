@@ -1,6 +1,6 @@
 #!/bin/sh
 
-print_usage()
+function print_usage
 {
 	echo -e "\nUSAGE: ${0} --target=[target-dev] --fw-spl=[spl-image] --fw-img=[sdcard-image]\n"
 	echo -e "EXAMPLE:"
@@ -8,13 +8,13 @@ print_usage()
 	return
 }
 
-print_vars()
+function print_vars
 {
 	echo "------------------------------------"
 	echo FW_DIR=${FW_DIR}
 	echo FW_SPL_IMAGE=${FW_SPL_IMAGE}
-	echo FW_SDCARD_IMAGE=${FW_SPL_IMAGE}
-	echo TARGET_MMC_DEV=${TARGET_MMC_DEV}
+	echo FW_SDCARD_IMAGE=${FW_SDCARD_IMAGE}
+	echo TARGET_MMC_DEV=/dev/${TARGET_MMC_DEV}
 	echo "------------------------------------"
 }
 
@@ -110,9 +110,21 @@ sync
 
 if [ ! -z ${FW_SDCARD_IMAGE} ]
 then
-	print_bold "Installing the whole firmware image to e-MMC"
-	dd if=${FW_DIR}/${FW_SDCARD_IMAGE} of=/dev/${TARGET_MMC_DEV} bs=1M || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
+	FILESIZE=$(stat -c%s "${FW_DIR}/${FW_SDCARD_IMAGE}")
+	print_bold "Installing the whole firmware image to e-MMC (${FILESIZE} bytes)"
+	#dd if=${FW_DIR}/${FW_SDCARD_IMAGE} bs=1M of=/dev/${TARGET_MMC_DEV} || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
+	pv ${FW_DIR}/${FW_SDCARD_IMAGE} > /dev/${TARGET_MMC_DEV} || error_exit "Error while copying the firmware image to ${TARGET_MMC_DEV}"
 	sync
+else
+	modprobe -r g_mass_storage
+	# Create a FAT FS on target device so it can be recognized by Windows properly
+	print_bold "Creating a FAT File System on /dev/${TARGET_MMC_DEV}."
+	mkfs.vfat /dev/${TARGET_MMC_DEV}
+	sync
+	print_bold "Openning USB Mass Storage Device for installing firmware image."
+	modprobe g_mass_storage file=/dev/${TARGET_MMC_DEV}	
+	print_bold "Use Win32 Disk Imager or dd command to flash the eMMC from mini USB port."
+	# Now, we wait firmware installation from Win32 Disk Imager tool.
 fi
 
 # Done
