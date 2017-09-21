@@ -6,9 +6,10 @@ include turing-image-x11.bb
 IMAGE_INSTALL += " \
 	packagegroup-core-qt4e \
 	packagegroup-turing-python \
+	packagegroup-turing-nodejs \
 	oracle-jse-jre \
 	chromium \
 	firefox \
 	libmysqlclient-dev \
-    mariadb \
+        mariadb \
     "
