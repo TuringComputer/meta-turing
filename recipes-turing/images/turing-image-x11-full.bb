@@ -9,7 +9,6 @@ IMAGE_INSTALL += " \
 	packagegroup-turing-opencv \
 	packagegroup-turing-mono \
 	packagegroup-turing-nodejs \
-	packagegroup-turing-opencv \
 	oracle-jse-jre \
         ${@base_contains("SOC_FAMILY", "mx6ul", "", "chromium", d)} \
 	leafpad \
