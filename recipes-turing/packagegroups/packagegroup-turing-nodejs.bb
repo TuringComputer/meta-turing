@@ -10,7 +10,7 @@ inherit packagegroup
 RDEPENDS_packagegroup-turing-nodejs = "\
     nodejs \
     nodejs-npm \
-	nodejs-systemtap \
-    node-red \
+    nodejs-systemtap \
+    ${@base_contains("SOC_FAMILY", "mx6ul", "", "node-red", d)} \
     \
     "
