@@ -13,3 +13,5 @@ IMAGE_INSTALL += " \
         ${@base_contains("SOC_FAMILY", "mx6ul", "", "chromium", d)} \
 	leafpad \
     "
+# 3.5GB
+IMAGE_ROOTFS_SIZE = "3670016"
