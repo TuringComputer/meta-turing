@@ -250,7 +250,7 @@ function test_pcie
 
 function test_ts
 {
-	let COUNT=0
+    let COUNT=0
     test_title "Testing Touchscreen"
     echo "Please, touch the display at any position..."
     while [ $(timeout 3s ts_print | wc -l) -lt 1 ] && [ $COUNT -lt 5 ]
@@ -629,7 +629,7 @@ do
         		test_lvds
        			;;
         kit-cpu)
-        		TITLE="Testing $(get_soc $(get_cmdline))"
+                 	TITLE="Testing $(get_soc $(get_cmdline))"
         		test_title "$TITLE"
         		test_cpu
         		test_ddr3
@@ -642,12 +642,12 @@ do
         		test_can0
         		test_can1
         		test_pcie
-        		test_ts
         		test_lcd
         		test_lvds
         		test_i2s_out
         		#test_csi
         		#test_mipi
+        		test_ts
         		test_sleep
         		;;
         kit-cpu-fast)
