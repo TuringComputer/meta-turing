@@ -23,7 +23,6 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     curl \
     netcat \
     apache2 \
-    lighttpd \
     wpa-supplicant \
     nfs-utils \
     tcpdump \
