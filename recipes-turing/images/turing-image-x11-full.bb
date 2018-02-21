@@ -8,10 +8,8 @@ IMAGE_INSTALL += " \
 	packagegroup-turing-python \
 	packagegroup-turing-opencv \
 	packagegroup-turing-mono \
-	packagegroup-turing-nodejs \
 	oracle-jse-jre \
-        ${@base_contains("SOC_FAMILY", "mx6ul", "", "chromium", d)} \
 	leafpad \
     "
 # 3.5GB
-IMAGE_ROOTFS_SIZE = "3670016"
+#IMAGE_ROOTFS_SIZE = "3670016"
