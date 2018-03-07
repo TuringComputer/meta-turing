@@ -30,4 +30,6 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     ethtool \
     bridge-utils \
     libnfc-nci \
+    packagegroup-tools-bluetooth \
+    openobex \
     "
