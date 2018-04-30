@@ -13,5 +13,6 @@ RDEPENDS_packagegroup-turing-python = "\
     python-modules \
     python-pip \
     python-setuptools \
+    python-dbus \
     \
     "
