@@ -32,4 +32,6 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     libnfc-nci \
     packagegroup-tools-bluetooth \
     openobex \
+    bluez5-testtools \
+    bluez5-noinst-tools \
     "

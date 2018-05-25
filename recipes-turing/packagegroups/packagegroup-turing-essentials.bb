@@ -27,13 +27,13 @@ RDEPENDS_packagegroup-turing-essentials = "\
     evtest \
     mtd-utils \
     mtd-utils-ubifs \
-  	imx-test \
-  	util-linux \
-  	coreutils \
-  	usbutils \
-  	cpufrequtils \
-  	dbus \
-  	alsa-utils \
+    imx-test \
+    util-linux \
+    coreutils \
+    usbutils \
+    cpufrequtils \
+    dbus \
+    alsa-utils \
     dosfstools \
     rt-tests \
     bc \

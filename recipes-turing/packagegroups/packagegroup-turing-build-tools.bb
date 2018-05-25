@@ -11,14 +11,16 @@ RDEPENDS_packagegroup-turing-build-tools = "\
     libgcc \
     libgcc-dev \
     libstdc++-staticdev \
-  	ccache \
-  	chkconfig \
-  	glib-networking \
-  	glibmm \
-  	boost \
-  	cmake \
-  	zlib \
-  	glib-2.0 \
-  	gdbserver \
-	gdb \
+    ccache \
+    chkconfig \
+    glib-networking \
+    glibmm \
+    boost \
+    cmake \
+    zlib \
+    glib-2.0 \
+    gdbserver \
+    gdb \
+    git \
+    lib-perl \
     "

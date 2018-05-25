@@ -9,6 +9,7 @@ inherit packagegroup
 
 RDEPENDS_packagegroup-turing-python = "\
     python \
+    python-dev \
     python-core \
     python-modules \
     python-pip \
