@@ -34,4 +34,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     openobex \
     bluez5-testtools \
     bluez5-noinst-tools \
+    ntp \
     "
