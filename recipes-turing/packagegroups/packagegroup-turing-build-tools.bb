@@ -23,4 +23,5 @@ RDEPENDS_packagegroup-turing-build-tools = "\
     gdb \
     git \
     lib-perl \
+    packagegroup-core-buildessential \
     "
