@@ -6,9 +6,9 @@ include turing-image-x11.bb
 IMAGE_INSTALL += " \
 	packagegroup-core-qt4e \
 	packagegroup-turing-python \
-	packagegroup-turing-opencv \
+	${@bb.utils.contains("SOC_FAMILY", "mx6ul", "", "packagegroup-turing-opencv", d)} \
 	packagegroup-turing-mono \
-        packagegroup-turing-nodejs \
+    packagegroup-turing-nodejs \
 	oracle-jse-jre \
 	leafpad \
     "

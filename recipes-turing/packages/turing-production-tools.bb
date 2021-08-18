@@ -6,6 +6,7 @@ SRCREV = "${AUTOREV}"
 PV = "v1"
 
 SRC_URI = "file://install-emmc.sh \
+           file://install-emmc-android.sh \
 		   file://install-nand.sh \
            file://board-test.sh \
           "

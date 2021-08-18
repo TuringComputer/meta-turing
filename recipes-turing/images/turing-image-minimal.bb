@@ -12,3 +12,5 @@ IMAGE_INSTALL_append = "\
   \
   packagegroup-turing-linux-firmware \
   "
+  
+BOOT_SPACE = "16384" 
