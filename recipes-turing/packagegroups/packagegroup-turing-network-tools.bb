@@ -35,4 +35,5 @@ RDEPENDS_packagegroup-turing-network-tools = "\
     bluez5-testtools \
     bluez5-noinst-tools \
     ntp \
+    init-ifupdown \
     "

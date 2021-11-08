@@ -1,4 +1,4 @@
-DESCRIPTION = "Qt5 Demo Application as a Systemd Startup Service"
+DESCRIPTION = "Unblanks secondary framebuffer"
 
 inherit systemd
 

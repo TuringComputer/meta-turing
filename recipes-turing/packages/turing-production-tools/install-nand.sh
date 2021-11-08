@@ -4,7 +4,7 @@ function print_usage
 {
 	echo -e "\nUSAGE: ${0} --spl=[spl-image] --uboot=[uboot-image] --kernel=[kernel-zImage] --dtbul0=[DTB-UL0] --dtbul1=[DTB-UL1] --dtbull0=[DTB-ULL0] --dtbull1=[DTB-UL1] --ubi=[ubi-image]\n"
 	echo -e "EXAMPLE:"
-	echo -e "${0} --spl=SPL --uboot=u=boot.img --kernel=zImage --dtbul0=imx6ul-turing-eval.dtb --dtbull0=imx6ull-turing-eval.dtb --rootfs=turing-image-x11-full-imx6ul-turing.ubi\n"
+	echo -e "${0} --spl=SPL --uboot=u-boot.img --kernel=zImage --dtbul0=imx6ul-turing-eval.dtb --dtbull0=imx6ull-turing-eval.dtb --rootfs=turing-image-x11-full-imx6ul-turing.ubi\n"
 	return
 }
 
@@ -157,7 +157,7 @@ then
 	print_bold "Erasing partition /dev/mtd6"
 	flash_erase /dev/mtd6 0 0
 	print_bold "Installing second DTB image for i.MX6UL"
-	nandwrite -p /dev/mtd6 ${FW_DIR}/${FW_DTBUL0_IMAGE} || error_exit "Error while installing second DTB image for i.MX6UL."
+	nandwrite -p /dev/mtd6 ${FW_DIR}/${FW_DTBUL1_IMAGE} || error_exit "Error while installing second DTB image for i.MX6UL."
 	sync
 fi
 
@@ -166,7 +166,7 @@ then
 	print_bold "Erasing partition /dev/mtd7"
 	flash_erase /dev/mtd7 0 0
 	print_bold "Installing second DTB image for i.MX6ULL"
-	nandwrite -p /dev/mtd7 ${FW_DIR}/${FW_DTBULL0_IMAGE} || error_exit "Error while installing second DTB image for i.MX6ULL."
+	nandwrite -p /dev/mtd7 ${FW_DIR}/${FW_DTBULL1_IMAGE} || error_exit "Error while installing second DTB image for i.MX6ULL."
 	sync
 fi	
 
